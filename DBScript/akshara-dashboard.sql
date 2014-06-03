@@ -1,111 +1,134 @@
--- Table: tb_fc
+-- Table: myapp_document
+-- DROP TABLE myapp_document;
 
+CREATE TABLE myapp_document
+(
+  id serial NOT NULL,
+  docfile character varying(100) NOT NULL,
+  CONSTRAINT myapp_document_pkey PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE myapp_document
+  OWNER TO postgres;
+
+-- Table: tb_fc
 -- DROP TABLE tb_fc;
 
 CREATE TABLE tb_fc
 (
-  id integer NOT NULL,
+  id serial NOT NULL,
   name character(120) NOT NULL,
-  CONSTRAINT pk_tb_fc PRIMARY KEY (id)
+  CONSTRAINT pk_tb_fc PRIMARY KEY (id),
+  CONSTRAINT "UQ_TB_FC_FC_NAME" UNIQUE (name)
 )
 WITH (
   OIDS=FALSE
 );
 ALTER TABLE tb_fc
   OWNER TO postgres;
--- Table: tb_district
 
+-- Table: tb_district
 -- DROP TABLE tb_district;
 
 CREATE TABLE tb_district
 (
-  "ID" integer NOT NULL,
+  id serial NOT NULL,
   district_name character(50),
-  CONSTRAINT pk_tb_district PRIMARY KEY ("ID")
+  CONSTRAINT pk_tb_district PRIMARY KEY (id),
+  CONSTRAINT "UQ_TB_DISTRICT_DIST_NAME" UNIQUE (district_name)
 )
 WITH (
   OIDS=FALSE
 );
 ALTER TABLE tb_district
   OWNER TO postgres;
+  
 -- Table: tb_block
-
 -- DROP TABLE tb_block;
 
 CREATE TABLE tb_block
 (
-  id integer NOT NULL,
+  id serial NOT NULL,
   block_name character(120),
-  district_id integer,
+  district_id serial NOT NULL,
   CONSTRAINT pk_tb_block PRIMARY KEY (id),
   CONSTRAINT fk_district_id FOREIGN KEY (district_id)
-      REFERENCES tb_district ("ID") MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION
+      REFERENCES tb_district (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT "UQ_TB_BLOCK_BLOCK_DIST" UNIQUE (block_name, district_id)
 )
 WITH (
   OIDS=FALSE
 );
 ALTER TABLE tb_block
   OWNER TO postgres;
--- Table: tb_cluster
 
+-- Table: tb_cluster
 -- DROP TABLE tb_cluster;
 
 CREATE TABLE tb_cluster
 (
-  id integer NOT NULL,
+  id serial NOT NULL,
   cluster_name character(150),
-  block_id integer,
+  block_id serial NOT NULL,
   CONSTRAINT pk_tb_cluster PRIMARY KEY (id),
   CONSTRAINT fk_block_id FOREIGN KEY (block_id)
       REFERENCES tb_block (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT "UQ_TB_CLUSTER_CLUSTER_BLOCK" UNIQUE (cluster_name, block_id)
 )
 WITH (
   OIDS=FALSE
 );
 ALTER TABLE tb_cluster
   OWNER TO postgres;
--- Table: tb_school
 
+
+-- Table: tb_school
 -- DROP TABLE tb_school;
 
 CREATE TABLE tb_school
 (
-  id integer NOT NULL,
+  id serial NOT NULL,
   school_name character(500),
-  cluster_id integer,
+  cluster_id serial NOT NULL,
   klp_id numeric(15,0),
   CONSTRAINT pk_tb_school PRIMARY KEY (id),
   CONSTRAINT fk_cluster_id FOREIGN KEY (cluster_id)
       REFERENCES tb_cluster (id) MATCH SIMPLE
-      ON UPDATE CASCADE ON DELETE CASCADE
+      ON UPDATE CASCADE ON DELETE CASCADE,
+  CONSTRAINT "UQ_TB_SCHOOL_SCHOOL_CLUSTER" UNIQUE (school_name, cluster_id, klp_id)
 )
 WITH (
   OIDS=FALSE
 );
 ALTER TABLE tb_school
   OWNER TO postgres;
+
+
 -- Table: tb_visit_details
 
 -- DROP TABLE tb_visit_details;
 
 CREATE TABLE tb_visit_details
 (
-  id numeric(15,0) NOT NULL,
+  id serial NOT NULL,
   month smallint,
   day smallint,
   year integer,
-  fc_id integer,
+  fc_id serial NOT NULL,
   other_visit character varying(500),
-  school_id integer,
+  school_id serial NOT NULL,
   CONSTRAINT pk_tb_visit_details PRIMARY KEY (id),
   CONSTRAINT fk_fc_id FOREIGN KEY (fc_id)
       REFERENCES tb_fc (id) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT fk_school_id FOREIGN KEY (school_id)
       REFERENCES tb_school (id) MATCH SIMPLE
-      ON UPDATE CASCADE ON DELETE CASCADE
+      ON UPDATE CASCADE ON DELETE CASCADE,
+  CONSTRAINT "UQ_VISIT_DETAILS" UNIQUE (day, month, year, other_visit, school_id, fc_id)
 )
 WITH (
   OIDS=FALSE
@@ -131,14 +154,23 @@ CREATE INDEX fki_school_id
   USING btree
   (school_id);
 
--- Table: tb_performance_feedback
 
+-- Index: fki_school_id
+-- DROP INDEX fki_school_id;
+
+CREATE INDEX fki_school_id
+  ON tb_visit_details
+  USING btree
+  (school_id);
+
+
+-- Table: tb_performance_feedback
 -- DROP TABLE tb_performance_feedback;
 
 CREATE TABLE tb_performance_feedback
 (
-  id numeric(15,0) NOT NULL,
-  visit_id numeric(15,0),
+  id serial NOT NULL,
+  visit_id integer,
   parents_teachers smallint,
   parents_parents smallint,
   parents_community smallint,
@@ -162,14 +194,14 @@ WITH (
 );
 ALTER TABLE tb_performance_feedback
   OWNER TO postgres;
--- Table: tb_requirements_feedback
 
+-- Table: tb_requirements_feedback
 -- DROP TABLE tb_requirements_feedback;
 
 CREATE TABLE tb_requirements_feedback
 (
-  id numeric(15,0) NOT NULL,
-  visit_id numeric(15,0),
+  id serial NOT NULL,
+  visit_id integer,
   teacher_tlmsufficient smallint,
   teacher_work_overload smallint,
   teacher_need_training smallint,
