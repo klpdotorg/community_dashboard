@@ -234,3 +234,30 @@ WITH (
 );
 ALTER TABLE tb_requirements_feedback
   OWNER TO postgres;
+
+-- Table: tb_weight_determination
+
+-- DROP TABLE tb_weight_determination;
+
+CREATE TABLE tb_weight_determination
+(
+  id integer NOT NULL,
+  question character varying(150),
+  total_yes_teachers integer,
+  total_yes_parents integer,
+  total_yes_community integer,
+  agreement_percent_teacher numeric(5,2),
+  agreement_percent_parents numeric(5,2),
+  agreement_percent_community numeric(5,2),
+  normalized_agreement_percent_t numeric(5,2),
+  normalized_agreement_percent_p numeric(5,2),
+  normalized_agreement_percent_c numeric(5,2),
+  final_weights integer,
+  CONSTRAINT "PK_TB_weight_determination" PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE tb_weight_determination
+  OWNER TO postgres;
+

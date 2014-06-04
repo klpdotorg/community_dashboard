@@ -49,34 +49,41 @@ class TbPerformanceFeedback(models.Model):
     parents_teachers = models.SmallIntegerField(blank=True, null=True)
     parents_parents = models.SmallIntegerField(blank=True, null=True)
     parents_community = models.SmallIntegerField(blank=True, null=True)
+    assumed_actual_parents = models.SmallIntegerField(blank=True, null=True)
     sdmc_teachers = models.SmallIntegerField(blank=True, null=True)
     sdmc_parents = models.SmallIntegerField(blank=True, null=True)
     sdmc_community = models.SmallIntegerField(blank=True, null=True)
+    assumed_actual_sdmc = models.SmallIntegerField(blank=True, null=True)
     community_teachers = models.SmallIntegerField(blank=True, null=True)
     community_parents = models.SmallIntegerField(blank=True, null=True)
     community_community = models.SmallIntegerField(blank=True, null=True)
+    assumed_actual_comm = models.SmallIntegerField(blank=True, null=True)
     teachers_teachers = models.SmallIntegerField(blank=True, null=True)
     teachers_parents = models.SmallIntegerField(blank=True, null=True)
     teachers_community = models.SmallIntegerField(blank=True, null=True)
+    assumed_actual_teachers = models.SmallIntegerField(blank=True, null=True)
     addl_comments_fs = models.CharField(max_length=750, blank=True)
-    class Meta:        
+    class Meta:
         db_table = 'tb_performance_feedback'
-
+        
 class TbRequirementsFeedback(models.Model):
     id = models.AutoField(primary_key=True)
-    visit = models.ForeignKey('TbVisitDetails', blank=True, null=True)
+       visit = models.ForeignKey('TbVisitDetails', blank=True, null=True)
     teacher_tlmsufficient = models.SmallIntegerField(blank=True, null=True)
     teacher_work_overload = models.SmallIntegerField(blank=True, null=True)
     teacher_need_training = models.SmallIntegerField(blank=True, null=True)
     teacher_relationship_hm = models.SmallIntegerField(blank=True, null=True)
+    teacher_requirement = models.SmallIntegerField(blank=True, null=True)
     parents_good_school = models.SmallIntegerField(blank=True, null=True)
     parents_teachers_regular = models.SmallIntegerField(blank=True, null=True)
     parents_attention_to_children = models.SmallIntegerField(blank=True, null=True)
     parents_food_served = models.SmallIntegerField(blank=True, null=True)
+    parent_requirement = models.SmallIntegerField(blank=True, null=True)
     community_qtm_to_teach = models.SmallIntegerField(blank=True, null=True)
     community_str = models.SmallIntegerField(blank=True, null=True)
     community_govt_involved = models.SmallIntegerField(blank=True, null=True)
     community_good_infra = models.SmallIntegerField(blank=True, null=True)
+    community_requirement = models.SmallIntegerField(blank=True, null=True)
     teacher_addl_comments = models.CharField(max_length=750, blank=True)
     parents_addl_comments = models.CharField(max_length=750, blank=True)
     community_addl_comments = models.CharField(max_length=750, blank=True)
@@ -103,3 +110,20 @@ class TbVisitDetails(models.Model):
     class Meta:
         db_table = 'tb_visit_details'
         unique_together = ("day", "month", "year", "fc", "school", "other_visit")
+
+class TbWeightDetermination(models.Model):
+    id = models.IntegerField(primary_key=True)
+    question = models.CharField(max_length=150, blank=True)
+    total_yes_teachers = models.IntegerField(blank=True, null=True)
+    total_yes_parents = models.IntegerField(blank=True, null=True)
+    total_yes_community = models.IntegerField(blank=True, null=True)
+    agreement_percent_teacher = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
+    agreement_percent_parents = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
+    agreement_percent_community = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
+    normalized_agreement_percent_t = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
+    normalized_agreement_percent_p = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
+    normalized_agreement_percent_c = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
+    final_weights = models.IntegerField(blank=True, null=True)
+    class Meta:
+        db_table = 'tb_weight_determination'
+
