@@ -32,5 +32,7 @@ def read_file(filePath):
 def check_answer(str):
 	if str.lower() == 'yes':
 		return 1
-	else:
+	if str.lower() == 'no':
 		return 0
+	else:
+		return 
