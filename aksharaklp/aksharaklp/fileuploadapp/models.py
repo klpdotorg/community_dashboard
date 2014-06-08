@@ -68,7 +68,7 @@ class TbPerformanceFeedback(models.Model):
         
 class TbRequirementsFeedback(models.Model):
     id = models.AutoField(primary_key=True)
-       visit = models.ForeignKey('TbVisitDetails', blank=True, null=True)
+    visit = models.ForeignKey('TbVisitDetails', blank=True, null=True)
     teacher_tlmsufficient = models.SmallIntegerField(blank=True, null=True)
     teacher_work_overload = models.SmallIntegerField(blank=True, null=True)
     teacher_need_training = models.SmallIntegerField(blank=True, null=True)

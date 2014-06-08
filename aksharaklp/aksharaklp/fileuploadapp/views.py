@@ -7,7 +7,7 @@ from aksharaklp import settings
 from aksharaklp.fileuploadapp.models import Document
 from aksharaklp.fileuploadapp.forms import DocumentForm
 from aksharaklp.fileuploadapp.filereader import read_file
-
+from aksharaklp.fileuploadapp.dataanalyzer import analyze_data
 def list(request):
     # Handle file upload
     if request.method == 'POST':
@@ -30,5 +30,23 @@ def list(request):
     return render_to_response(
         'fileuploadapp/list.html',
         {'documents': documents, 'form': form},
+        context_instance=RequestContext(request)
+    )
+
+def analyze(request):
+    print("Start analysis ===>");
+    #handle data analysis call
+    if request.method == 'GET':
+        analysis = analyze_data()
+      
+    # Redirect to the document list 
+    form = DocumentForm() # A empty, unbound form
+
+    # Load documents for the list page
+    documents = Document.objects.all()
+
+    return render_to_response(
+        'fileuploadapp/list.html',
+        {'documents': documents, 'form': form, 'analysis': analysis},
         context_instance=RequestContext(request)
     )

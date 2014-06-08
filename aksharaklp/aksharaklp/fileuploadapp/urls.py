@@ -3,4 +3,5 @@ from django.conf.urls import patterns, url
 
 urlpatterns = patterns('aksharaklp.fileuploadapp.views',
     url(r'^list/$', 'list', name='list'),
+    url(r'^analyze/$', 'analyze', name='analyze'),
 )
