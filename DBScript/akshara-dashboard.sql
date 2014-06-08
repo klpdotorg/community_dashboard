@@ -260,4 +260,8 @@ WITH (
 );
 ALTER TABLE tb_weight_determination
   OWNER TO postgres;
-
+-- Populate the weight determination criteria questions
+insert into  tb_weight_determination(id,question) values (1, 'Are the Parents involved in the progress of the school?');
+insert into  tb_weight_determination(id,question) values (2, 'Are the SDMC Members involved io the progress of the school?');
+insert into  tb_weight_determination(id,question) values (3, 'Are the community members involved in the progress of the school?');
+insert into  tb_weight_determination(id,question) values (4, 'Are the teacher involved in the progress of the school? ');
