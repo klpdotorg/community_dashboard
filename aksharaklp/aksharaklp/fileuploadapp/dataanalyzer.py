@@ -171,7 +171,6 @@ def determine_weights():
 			weight_row.final_weights_t = community_final_weights_t
 			weight_row.final_weights_p = community_final_weights_p
 			weight_row.final_weights_c = community_final_weights_c
-			weight_row.save(update_fields = ["total_yes_teachers", "total_yes_parents", "total_yes_community","agreement_percent_teacher", "agreement_percent_parents", "agreement_percent_community","normalized_agreement_percent_t", "normalized_agreement_percent_p", "normalized_agreement_percent_p","final_weights_t", "final_weights_p", "final_weights_c"])
 	
 		if weight_row.id == 4:
 			weight_row.total_yes_teachers = teachers_yes_total_t
