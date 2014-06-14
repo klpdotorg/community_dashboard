@@ -123,7 +123,9 @@ class TbWeightDetermination(models.Model):
     normalized_agreement_percent_t = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     normalized_agreement_percent_p = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     normalized_agreement_percent_c = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
-    final_weights = models.IntegerField(blank=True, null=True)
+    final_weights_t = models.IntegerField(blank=True, null=True)
+    final_weights_p = models.IntegerField(blank=True, null=True)
+    final_weights_c = models.IntegerField(blank=True, null=True)
     class Meta:
         db_table = 'tb_weight_determination'
 
