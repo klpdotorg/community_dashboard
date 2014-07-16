@@ -29,19 +29,11 @@ DATABASES = {
        'ENGINE':'django.db.backends.postgresql_psycopg2',
         'NAME': 'akshara',
         'SCHEMA': 'akshara',
-         'USER': 'postgres',
+        'USER': 'postgres',
         'PASSWORD': 'akshara*123',
         'HOST': '127.0.0.1',
         'PORT': '5432',
     }
-    #'local': {
-        #'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        #'NAME': os.path.join(PROJECT_ROOT, 'database/database.sqlite3'),                      # Or path to database file if using sqlite3.
-        #'USER': '',                      # Not used with sqlite3.
-       # 'PASSWORD': '',                  # Not used with sqlite3.
-      #  'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-     #   'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
-    #}
 }
 
 # Local time zone for this installation. Choices can be found here:
@@ -88,10 +80,10 @@ STATIC_URL = '/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-    # Put strings here, like "/home/html/static" or "C:/www/django/static"
+    # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    "D:/Workspaces/CSR/community_dashboard_latest/aksharaklp/templates/",
+    "D:/Workspaces/CSR/community_dashboard/aksharaklp/templates"
 )
 
 # List of finder classes that know how to find static files in
@@ -130,6 +122,7 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
+    "D:/Workspaces/CSR/community_dashboard/aksharaklp/templates" 
 )
 
 INSTALLED_APPS = (
@@ -145,7 +138,6 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     
     'aksharaklp.fileuploadapp',
-    'aksharaklp.reports',
 )
 
 # A sample logging configuration. The only tangible logging
