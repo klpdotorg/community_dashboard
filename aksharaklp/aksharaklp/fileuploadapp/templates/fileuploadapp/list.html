@@ -3,36 +3,100 @@
 	<head>
 		<meta charset="utf-8">
 		<title>Akshara File Upload module</title>	
+		<meta charset="utf-8">
+		<meta content="IE=edge" http-equiv="X-UA-Compatible">
+		<meta content="width=device-width, initial-scale=1" name="viewport">
+		<meta content="" name="description">
+		<meta content="" name="author">
+		<!-- Bootstrap core CSS -->
+		<link href="../../static/lib/bootstrap.min.css" rel="stylesheet">
+		<link href="../../static/lib/tipsy.css" rel="stylesheet">
+		<link href="../../static/css/dashboard.css" rel="stylesheet">
 	</head>
 
 	<body>
-		 List of uploaded documents
-		{% if documents %}
-			<ul>
-			{% for document in documents %}
-				<li><a href="{{ document.docfile.url }}">{{ document.docfile.name }}</a></li>
-			{% endfor %}
-			</ul>
-		{% else %}
-			<p>No documents.</p>
-		{% endif %} 
-		{% if analysis == "success" %}
-			<h6>Data Analysis completed!</h6>
-		{% endif %}
-		<!-- Upload form. Note enctype attribute! -->
-		<form action="{% url "list" %}" method="post" enctype="multipart/form-data">
-			{% csrf_token %}
-			<p>{{ form.non_field_errors }}</p>
-			<p>{{ form.docfile.label_tag }} {{ form.docfile.help_text }}</p>
-			<p>
-				{{ form.docfile.errors }}
-				{{ form.docfile }}
-			</p>
-			<p><input type="submit" value="Upload" /></p>
-		</form>
-		<form action="{% url "analyze" %}" method="get">
-			<input type="submit" value="Analyze Data" />
-		</form>
+		<div class="navbar navbar-default navbar-fixed-top">
+		  <div class="navbar-header">
+		    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#menuDiv">
+		      <span class="sr-only">Toggle navigation</span>
+		      <span class="glyphicon glyphicon-edit"></span>
+		    </button>
+		    <a class="navbar-brand" href="#">Karnataka Learning Program</a>
+		  </div>
+		 </div>
+		 <div class="container-fluid">
+		 	<div class="row">
+		 		<div class="col-md-6">
+			 		<!-- Upload form. Note enctype attribute! -->
+ 			 		<form action="{% url "list" %}" method="post" enctype="multipart/form-data" role="form">
+		       		  {% csrf_token %}
+ 			 		  <div class="form-group">
+ 			 		  	<label for="id_docfile">{{ form.docfile.label }}</label>
+ 			 		  	{{ form.docfile }}
+ 			 		  	<p class="help-block">{{ form.docfile.help_text }}</p>
+ 			 		  </div>
+ 			 		  {% if form.docfile.errors %}
+ 			 		    <ul class="form-group has-error">
+ 			 		    {% for error in form.docfile.errors %}
+ 			 		        <li class="error"><strong>{{ error|escape }}</strong></li>
+ 			 		    {% endfor %}
+ 			 		    </ul>
+ 			 		  {% endif %}
+ 			 		  <input type="submit" value="Upload" class="btn btn-default"/>
+ 			 		  {% if form.non_field_errors %}
+ 			 			    <ol class="form-group has-error">
+ 			 			    {% for error in form.non_field_errors %}
+ 			 			        <li><strong>{{ error|escape }}</strong></li>
+ 			 			    {% endfor %}
+ 			 			    </ol>
+ 			 		  {% endif %}
+ 			 		</form>
+ 			 		<hr/>
+ 			 		<form action="{% url "analyze" %}" method="get" role="form">
+ 			 			<p class="text-warning bg-danger">Once you have uploaded all the data files, recalculate the descriptive statistics</p>
+ 			 			<input type="submit" value="Recalculate Descriptive statistics" class="btn btn-default"/>
+ 			 		</form>
+ 			 	 </div>
+ 			 	  <div class="col-md-6">
+ 			 	  	<div class="panel panel-default">
+ 			 	  	  <div class="panel-heading">
+		 			 	 Uploaded Files
+ 			 	  	  </div>
+ 			 	  	  <div class="panel-body">
+ 			 	  	     {% if documents %}
+ 			 	  	    	<ul>
+ 			 	  	    	{% for document in documents %}
+ 			 	  	    		<li><a href="{{ document.docfile.url }}">{{ document.docfile.name }}</a></li>
+ 			 	  	    	{% endfor %}
+ 			 	  	    	</ul>
+ 			 	  	    	{% else %}
+ 			 	  	    		<p>No documents.</p>
+ 			 	  	    	{% endif %} 
+ 			 	  	  </div>
+ 			 	  	</div>
+ 			 	 </div>
+		 	</div>
+		</div>
+
+		<div id="onupdatedialog" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+		  <div class="modal-dialog modal-sm">
+		    <div class="modal-content">
+		      Data Analysis Completed!
+		    </div>
+		  </div>
+		</div>
+		<script src="../../static/lib/jquery-min.js"></script>
+		<script src="../../static/lib/bootstrap.js"></script>
+		<script type="text/javascript">
+		var inFormOrLink=false;
+
+		$(document).ready(function(){
+			$('#id_docfile').attr('class','form-control');
+			{% if analysis == "success" %}
+				$('#onupdatedialog').modal('show')
+			{% endif %}
+		});
+		</script>
 	</body>
 
 </html> 
