@@ -1,0 +1,65 @@
+/*
+ * Base structure
+ */
+
+/* Move down content because we have a fixed navbar that is 50px tall */
+body {
+  padding-top: 60px;
+  position: relative;
+  font-family: "Lato", sans-serif;
+}
+
+.buttoninput{
+  padding:7px;
+}
+
+.axis path,
+.axis line {
+  stroke: black;
+  stroke-width: 1;
+  stroke-dasharray: 0;
+  shape-rendering: crispEdges;
+  fill: none;
+}
+
+h5{
+  text-align: center;
+  font-weight: bold;
+}
+
+.axisLabels{
+  font-size:14px;
+  fill: #000000;
+  font-weight: bold; 
+}
+
+.line {
+  fill: none;
+  stroke-width: 1.5px;
+}
+
+.trendLine {
+  fill: none;
+  stroke-width: 2px;
+  stroke: #6D6D6D;
+}
+
+.trendPoint {
+  stroke-width: 1px;
+  stroke: #6D6D6D;
+  fill:#6D6D6D;
+}
+
+.hidden
+{
+  display:none;
+}
+
+.datapoint {
+  stroke-width: 1.5px;
+  fill:#FFF;
+}
+
+.error{
+  color:red;
+}
