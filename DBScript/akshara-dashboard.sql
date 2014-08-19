@@ -138,7 +138,7 @@ ALTER TABLE tb_visit_details
 
 -- Index: fki_fc_id
 
--- DROP INDEX fki_fc_id;
+DROP INDEX IF EXISTS fki_fc_id;
 
 CREATE INDEX fki_fc_id
   ON tb_visit_details
@@ -147,7 +147,7 @@ CREATE INDEX fki_fc_id
 
 -- Index: fki_school_id
 
--- DROP INDEX fki_school_id;
+DROP INDEX IF EXISTS fki_school_id;
 
 CREATE INDEX fki_school_id
   ON tb_visit_details
@@ -156,7 +156,7 @@ CREATE INDEX fki_school_id
 
 
 -- Index: fki_school_id
--- DROP INDEX fki_school_id;
+DROP INDEX IF EXISTS fki_school_id;
 
 CREATE INDEX fki_school_id
   ON tb_visit_details

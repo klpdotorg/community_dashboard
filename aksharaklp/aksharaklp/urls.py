@@ -6,6 +6,5 @@ from django.views.generic import RedirectView
 
 urlpatterns = patterns('',
 	(r'^reports/', include('aksharaklp.reports.urls')),
-	(r'^fileuploadapp/', include('aksharaklp.fileuploadapp.urls')),
-	(r'^$', RedirectView.as_view(url='/reports/')), # Just for ease of use.
+	(r'^fileuploadapp/', include('aksharaklp.fileuploadapp.urls')), # Just for ease of use.
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

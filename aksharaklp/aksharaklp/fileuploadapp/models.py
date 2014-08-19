@@ -14,7 +14,6 @@ from django.db import models
 class Document(models.Model):
     docfile = models.FileField(upload_to='documents/%Y-%m-%d')
 
-
 class TbBlock(models.Model):
     id = models.AutoField(primary_key=True)
     block_name = models.CharField(max_length=120, blank=True)
@@ -74,16 +73,19 @@ class TbRequirementsFeedback(models.Model):
     teacher_need_training = models.SmallIntegerField(blank=True, null=True)
     teacher_relationship_hm = models.SmallIntegerField(blank=True, null=True)
     teacher_requirement = models.SmallIntegerField(blank=True, null=True)
+    
     parents_good_school = models.SmallIntegerField(blank=True, null=True)
     parents_teachers_regular = models.SmallIntegerField(blank=True, null=True)
     parents_attention_to_children = models.SmallIntegerField(blank=True, null=True)
     parents_food_served = models.SmallIntegerField(blank=True, null=True)
     parent_requirement = models.SmallIntegerField(blank=True, null=True)
+    
     community_qtm_to_teach = models.SmallIntegerField(blank=True, null=True)
     community_str = models.SmallIntegerField(blank=True, null=True)
     community_govt_involved = models.SmallIntegerField(blank=True, null=True)
     community_good_infra = models.SmallIntegerField(blank=True, null=True)
     community_requirement = models.SmallIntegerField(blank=True, null=True)
+   
     teacher_addl_comments = models.CharField(max_length=750, blank=True)
     parents_addl_comments = models.CharField(max_length=750, blank=True)
     community_addl_comments = models.CharField(max_length=750, blank=True)

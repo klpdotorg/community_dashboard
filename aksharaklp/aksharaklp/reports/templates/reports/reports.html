@@ -32,10 +32,12 @@
     </div>
     <div class="collapse navbar-collapse navbar-left" id="menuDiv">
       <ul id="dropdownsList" class="nav navbar-nav">
-        <li class="dropdown">
+        <li>
+          <li class="dropdown">
           <a class="dropdown-toggle" data-toggle="dropdown" href="#">District <b class="caret"></b></a>
           <ul id="dSelect" class="dropdown-menu">
           </ul>
+          </li>
         </li>
         <li class="dropdown">
           <a class="dropdown-toggle" data-toggle="dropdown" href="#">Block <b class="caret"></b></a>
@@ -135,6 +137,23 @@
       </div>
     </div>
   </div>
+
+  <div class="footer">
+    <div class="container">
+         <ul class="nav navbar-nav">
+               <li><a href="" title="">About</a></li>
+               <li><a href="" title="">Press</a></li>
+               <li><a href="" title="">Contact</a></li>
+               <li class="hidden-phone hidden-tablet"><a href="" title="">School Map</a></li>
+               <li class="hidden-phone hidden-tablet"><a href="" title="">Programmes</a></li>
+               <li class="hidden-phone hidden-tablet"><a href="" title="">Databases</a></li>
+               <li class="hidden-phone hidden-tablet"><a href="" title="">Reports</a></li>
+               <div class="clr"></div>
+            </ul>
+          </nav>
+        <div class="copyright"></div>
+    </div>
+  </div>
   <!-- Bootstrap core JavaScript
       ================================================== -->
   <!-- Placed at the end of the document so the pages load faster -->
@@ -145,22 +164,29 @@
   <script src="../../static/lib/d3.min.js"></script>
   <script type="text/javascript">
  var locationData={% autoescape off %}  {{ locationData }} {% endautoescape %};
- var reqBasicData,reqSplitData,perfData;
- var toDate,fromDate;
+ var fromDate=new Date('{% autoescape off %}  {{ fromDate }} {% endautoescape %}');
+ var toDate=new Date('{% autoescape off %}  {{ toDate }} {% endautoescape %}');
+   
+ var district,block,cluster,school;
+ var reqBasicData,avgsSplitData,perfData;
+
  var linesPalette=['#EC6608','#8E8CA5','#6398E5','#2C3E50'];
  var barsPalette=['#3891E3','#24B2B6','#7575BC','#CB0012'];
- var fromDate, toDate;
+ 
  var drawPending=true;
+ 
  var margin = { top: +10, right: +70, left: +60, bottom: +40 };
   //tips
   //defines a function to be used to append the title to the tooltip.  you can set how you want it to display here.
-  var maketip = function (d) { 
-    var tip = "(" + Math.round(+d.value *1000)/1000 + " , " +parseDate(d.date) +")"; return tip;};
+  var maketip = function (d) { var tip = "(" + Math.round(+d.value *1000)/1000 + " , " +parseDate(d.date) +")"; return tip;};
+ 
  //parse date
  var parseDate=d3.time.format("%b %y");
+ 
  //palette
  var barColors = d3.scale.ordinal().range(barsPalette);
  var lineColors = d3.scale.ordinal().range(linesPalette);
+
  var reqSplitLegendData={
     Teachers:[{name:'split1',value:'TLM (Teaching learning material) Sufficient'}, {name:'split2',value:'Overloaded with work'}, {name:'split3',value:'Need retraining/extra classes'}, {name:'split4',value:'Healthy relationship with the board'}],
     Parents:[{name:'split1',value:'School Board running the school efficiently'}, {name:'split2',value:'Teachers are consistent and take classes regularly'},
@@ -171,7 +197,7 @@
  
   //performance Index
   //requirements metrics
-  jQuery(document)
+  $(document)
     .ready(function () {
       $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
        var target=$(e.target).attr('href');
@@ -202,42 +228,47 @@
     });
 
   function setLocationData(pk) {
-    var selectedValue = { pk: pk };
+    var selectedValue = {pk:pk};
     onSelect("dSelect", locationData.districts, null, "district_name", selectedValue, onDistrictSelect, onDistrictSelect);
   }
 
   function onDistrictSelect(selectedValue) {
-    onSelect("bSelect", locationData.blocks, "district", "block_name", selectedValue, onBlockSelect, onBlockSelect);
+    district=selectedValue.data.pk;
+    onSelect("bSelect", locationData.blocks, "district", "block_name", district, onBlockSelect, onBlockSelect);
   }
 
   function onBlockSelect(selectedValue) {
-    onSelect("cSelect", locationData.clusters, "block", "cluster_name", selectedValue, onClusterSelect, onClusterSelect);
+    block=selectedValue.data.pk;
+    onSelect("cSelect", locationData.clusters, "block", "cluster_name", block, onClusterSelect, onClusterSelect);
   }
 
   function onClusterSelect(selectedValue) {
-    onSelect("sSelect", locationData.schools, "cluster", "school_name", selectedValue, onSchoolSelect, onSchoolSelect);
+    cluster=selectedValue.data.pk;
+    onSelect("sSelect", locationData.schools, "cluster", "school_name", cluster, onSchoolSelect, onSchoolSelect);
   }
 
-  function onSchoolSelect(selectedValue) {}
+  function onSchoolSelect(selectedValue) {
+    school=selectedValue.data.pk;
+  }
 
-  function onSelect(dropdownId, rawData, filterKey, dataField, selectedValue, eventListener) {
-    selectedValue = (selectedValue.data != null) ? selectedValue.data : selectedValue;
-    jQuery('#' + dropdownId)
-      .empty();
-    var fk = selectedValue.pk;
+  function onSelect(dropdownId, rawData, filterKey, dataField, key, eventListener) {
+    $('#' + dropdownId).empty();
+     
     var filteredData, selDistIndex;
     if (filterKey != null) {
-      filteredData = jQuery.grep(rawData, function (el, index) {
+      filteredData = $.grep(rawData, function (el, index) {
         var value = (el.fields[filterKey] != null) ? el.fields[filterKey] : el[filterKey];
-        return value == fk || value == 0;
+        return value == key || value == 0;
       });
-      selDistIndex = getFirstIndexOf(filteredData, "fields." + filterKey, fk);
+      selDistIndex = getFirstIndexOf(filteredData, "fields." + filterKey, key);
     } else {
       filteredData = rawData;
       selDistIndex = 0;
     }
+    
     var selAnchor;
-    jQuery.each(filteredData, function (index, value) {
+    
+    $.each(filteredData, function (index, value) {
       var selText = toProperCase(value.fields[dataField]);
       var anchor = $('<a>')
         .attr('href', 'javascript:void(0)')
@@ -250,12 +281,15 @@
             .children('.dropdown-toggle')
             .html($(list)
               .text() + ' <span class="caret"></span>');
-        });
-      var createdList = jQuery('#' + dropdownId)
+        })
+        .data(value);
+    
+    var createdList = $('#' + dropdownId)
         .append($('<li>')
           .append($(anchor)));
       selAnchor = (selDistIndex == index) ? anchor : selAnchor;
     });
+    
     $(selAnchor)
       .trigger('click');
   }
@@ -263,8 +297,8 @@
   function setDateDropDowns() {
       $('#fromDatePicker').datepicker({ format: "MM - yyyy", minViewMode: 1, autoclose: true });
       $('#toDatePicker').datepicker({ format: "MM - yyyy", minViewMode: 1, autoclose: true });
-      $('#fromDatePicker').datepicker("setDate", new Date(2008,3,01) );
-      $('#toDatePicker').datepicker("setDate", new Date(2008,9,01) );
+      $('#fromDatePicker').datepicker("setDate", new Date(fromDate) );
+      $('#toDatePicker').datepicker("setDate", new Date(toDate) );
   }
 
   //Chart Functions
@@ -273,42 +307,105 @@
   {
     fromDate = $("#fromDatePicker").datepicker('getDate');
     toDate = $("#toDatePicker").datepicker('getDate');
-    //transfer Data
-    generateData();
-    //set refresh boolean
-    drawPending=true;
-    if($(".nav-tabs li.active a").attr('href')=="#requirementsDiv"){
-       drawReqChart();
-       scrollToDiv("body");
-     }
-    else
-      drawPerformanceIndex();
+    //database month is 1 to 12 / javascript is 0 to 11
+    var fromMonth=fromDate.getMonth()+1;
+    var toMonth=toDate.getMonth()+1;
+    var fromYear=fromDate.getFullYear();
+    var toYear=toDate.getFullYear();
+
+    var data={
+                fromMonth:fromMonth,
+                fromYear:fromYear,
+                toMonth:toMonth,
+                toYear:toYear,
+                district:district,
+                block:block,
+                cluster:cluster,
+                school:school
+              };
+    
+    var rData;
+
+    $.get('../generate',data,function(data){  rData=data; })
+     .done(function() { 
+      rData=JSON.parse(rData);
+      reqBasicData= d3.csv.parse(rData.reqData, function (d) {
+        d.date=d.date.split('-');
+        return {
+          date: new Date(d.date[1], d.date[0]-1),
+          Teachers: +d.Teachers,
+          Parents: +d.Parents,
+          Community: +d.Community
+        };
+      });
+
+      avgsSplitData = d3.csv.parse(rData.reqAvgsSplit, function (d) {
+        d.date=d.date.split('-');
+        return {
+          date: new Date(d.date[1], d.date[0]-1),
+          splitOf: d.splitOf,
+          split1: +d.split1,
+          split2: +d.split2,
+          split3: +d.split3,
+          split4: +d.split4
+        };
+      });
+
+      perfData=d3.csv.parse(rData.perfData, function (d) {
+        d.date=d.date.split('-');
+        return {
+          date: new Date(d.date[1], d.date[0]-1),
+          Teachers: +d.Teachers,
+          SDMC: +d.SDMC,
+          Community: +d.Community,
+          Parents: +d.Parents
+        };
+      });
+
+      //set refresh boolean
+      drawPending=true;
+      if($(".nav-tabs li.active a").attr('href')=="#requirementsDiv"){
+         drawReqChart();
+         scrollToDiv("body");
+       }
+      else
+        drawPerformanceIndex();
+    })
+    .fail(function() { 
+      console.log('request failed')
+    });
   }
 
   function drawReqChart()
   {
     drawLineChart("reqAvgChart",reqBasicData,"Months","Requirements Metric");
     var svg = d3.select("#reqAvgChart");
-    var lines=svg.selectAll('.line');
-    lines.on('click',function(data){
+    var clickHandler=function (data){
       $('#selectedSHName').text(data.name);
       drawReqSplitsChart(data.name);
       scrollToDiv('#selectedSHName');
-    });
+    };
+
+    var lines=svg.selectAll('.line');
+    lines.on('click',clickHandler);
+
+    var circles=svg.selectAll('.datapoint');
+    circles.on('click',clickHandler);
+    
     $('#selectedSHName').text("Teachers");
     drawReqSplitsChart();
   }
 
   function drawReqSplitsChart(splitOf) {
     splitOf = (splitOf != null) ? splitOf : "Teachers";
-    var height = +jQuery("#reqAvgChart").height();
-    var width = +jQuery("#reqAvgChart").width();
+    var height = +$("#reqAvgChart").height();
+    var width = +$("#reqAvgChart").width();
     var heightDiff=height-margin.top-margin.bottom;
     var widthDiff = width - margin.right - margin.left - 100;
     var padding=.1,outerPadding=0;
 
     //filter data
-    var dataset = reqSplitData;
+    var dataset = avgsSplitData;
     dataset = dataset.filter(function (datum) { return (datum.splitOf == splitOf) });
     
     //date axis      
@@ -349,8 +446,10 @@
     
     barColors.domain(splits);
     dataset.forEach(function (d, i) { d.splitData = splits.map(function (name) { return { name: name, value: +d[name] }; }); });
-   
-    var months=d3.time.months(fromDate, d3.time.month.offset(toDate,1));
+    
+    var totalMonths = (fromDate.getFullYear() - toDate.getFullYear())*12 + (toDate.getMonth() - fromDate.getMonth());
+    var months=(totalMonths==0)?d3.time.months(fromDate, toDate):d3.time.months(fromDate,d3.time.month.offset(toDate,1));
+    
     dateScale.domain(months);
     splitScale.domain(splits).rangeRoundBands([0, dateScale.rangeBand()]);
     
@@ -381,10 +480,12 @@
     perfSplit.enter()
       .append("g")
       .attr("class", "PerfSplit")
-      .attr("transform", function (d) {return "translate(" + dateScale(d.date) + ",0)"; });
+      .attr("transform", function (d) {return "translate(" + 
+        dateScale(d.date) + ",0)"; });
 
     perfSplit.attr("class", "PerfSplit")
-             .attr("transform", function (d) {return "translate(" +   dateScale(d.date) + ",0)"; });
+             .attr("transform", function (d) {return "translate(" +   
+              dateScale(d.date) + ",0)"; });
 
     var rects=perfSplit.selectAll(".bar").data(function (d) { return d.splitData; });
 
@@ -497,8 +598,8 @@
   
   function drawLineChart(svgId,dataset,xName,yName) {
     //scales
-    var height = +jQuery("#"+svgId).height();
-    var width = +jQuery("#"+svgId).width();
+    var height = +$("#"+svgId).height();
+    var width = +$("#"+svgId).width();
     var widthDiff = width - margin.right - margin.left-100;
     var heightDiff = height -margin.bottom;
     var xScale = d3.time.scale().range([0, widthDiff]);
@@ -507,12 +608,10 @@
     //create axis
     var xAxis = d3.svg.axis().scale(xScale).orient("bottom");
     var yAxis = d3.svg.axis().scale(yScale).orient("left");
+    
     //draw averages
     var line = d3.svg.line().x(function (d) { return xScale(d.date); })
                              .y(function (d) { return yScale(d.value); });
-
-    var fakeLine=d3.svg.line().x(function (d) { return xScale(d.date); })
-                             .y(function (d) { return heightDiff; });
 
     var keys=d3.keys(dataset[0]).filter(function (key) {
         return key !== "date";
@@ -522,7 +621,7 @@
     
     var transformedDataset = lineColors.domain().map(function (name) { 
       return { name: name, values: dataset.map(function (d) { 
-        return { date: d.date, value: +d[name] }; }) };
+        return { date: d.date, value: +d[name], name:name }; }) };
       });
     
     xScale.domain(d3.extent(dataset, function (d) { return d.date;}));
@@ -651,88 +750,10 @@
     drawLineChart('perfIndChart',perfData,"Months","Performance Index");
   }
 
-
-  function generateData()
-  {
-    generateReqData();
-    generateReqSplitData();
-    generatePerfData();
-  }
-
-  function generateReqData() {
-     var data = "date,Teachers,Parents,Community";
-     var startDate = +fromDate;
-     var endDate = +d3.time.month.offset(toDate, 1);
-     var dateArray = d3.time.months(startDate, endDate);
-     for (var i = 0; i < dateArray.length; i++) {
-       var date = +dateArray[i];
-       var line = date + "," + Math.random() + "," + Math.random() + "," + Math.random();
-       data = data + '\n' + line;
-    }
-    reqBasicData= d3.csv.parse(data, function (d) {
-      return {
-        date: new Date(+d.date),
-        Teachers: +d.Teachers,
-        Parents: +d.Parents,
-        Community: +d.Community
-      };
-    });
-
-  }
-
-  function generateReqSplitData(startDate, endDate) {
-    var data = "date,splitOf,split1,split2,split3,split4";
-    var startDate = +fromDate;
-    var endDate = +d3.time.month.offset(toDate, 1);
-    var dateArray = d3.time.months(startDate, endDate);
-     for (var i = 0; i < dateArray.length; i++) {
-       var date = +dateArray[i];
-       var line1 = date + "," + "Teachers," + Math.random()*100 + "," + Math.random()*100 + "," + Math.random()*100 + "," + Math.random()*100;
-       var line2 = date + "," + "Parents," + Math.random()*100 + "," + Math.random()*100 + "," + Math.random()*100 + "," + Math.random()*100;
-       var line3 = date + "," + "Community,"+ Math.random()*100 + "," + Math.random()*100 + "," + Math.random()*100 + "," + Math.random()*100;
-       data = data + '\n' + line1;
-       data = data + '\n' + line2;
-       data = data + '\n' + line3;
-     }
-     avgsSplitData = d3.csv.parse(data, function (d) {
-       return {
-         date: new Date(+d.date),
-         splitOf: d.splitOf,
-         split1: +d.split1,
-         split2: +d.split2,
-         split3: +d.split3,
-         split4: +d.split4
-       };
-     });
-    reqSplitData = avgsSplitData;
-  }
-
-  function generatePerfData(startDate,endDate){
-    var data="date,Teachers,SDMC,Community,Parents";
-    var startDate = +fromDate;
-    var endDate = +d3.time.month.offset(toDate, 1);
-    var dateArray = d3.time.months(startDate, endDate);
-    for (var i = 0; i < dateArray.length; i++) {
-      var date = +dateArray[i];
-      var line = date + "," + Math.random() + "," + Math.random() + "," + Math.random()+","+Math.random();
-      data = data + '\n' + line;
-    }
-
-    perfData=d3.csv.parse(data, function (d) {
-      return {
-        date: new Date(+d.date),
-        Teachers: +d.Teachers,
-        SDMC: +d.SDMC,
-        Community: +d.Community,
-        Parents: +d.Parents
-      };
-    });
-  }
-
   /*Utility Functions*/
 
   function toProperCase(s) {
-    s = jQuery.trim(s);
+    s = $.trim(s);
     return s.toLowerCase()
       .replace(/\b((m)(a?c))?(\w)/g,
         function ($1, $2, $3, $4, $5) {
