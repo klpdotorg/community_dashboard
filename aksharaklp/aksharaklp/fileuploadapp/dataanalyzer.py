@@ -1,6 +1,7 @@
 from aksharaklp.fileuploadapp.models import *
 from django.db import connection
-
+import sys
+import traceback
 
 def analyze_data():
 	performance_analysis = analyze_performance() 
@@ -185,10 +186,13 @@ def determine_weights():
 			weight_row.final_weights_t = teachers_final_weights_t
 			weight_row.final_weights_p = teachers_final_weights_p
 			weight_row.final_weights_c = teachers_final_weights_c
-			
-		weight_row.save(update_fields = ["total_yes_teachers", "total_yes_parents", "total_yes_community","agreement_percent_teacher", "agreement_percent_parents", "agreement_percent_community","normalized_agreement_percent_t", "normalized_agreement_percent_p", "normalized_agreement_percent_c","final_weights_t", "final_weights_p", "final_weights_c"])
- 	
-	
+		
+		try:
+			weight_row.save(update_fields = ["total_yes_teachers", "total_yes_parents", "total_yes_community","agreement_percent_teacher", "agreement_percent_parents", "agreement_percent_community","normalized_agreement_percent_t", "normalized_agreement_percent_p", "normalized_agreement_percent_c","final_weights_t", "final_weights_p", "final_weights_c"])
+		except:
+			sys.stderr.write("----------------SQL ERROR-----------------------\n")
+			traceback.print_exc()
+
 	return True
 
 def check_None(str):

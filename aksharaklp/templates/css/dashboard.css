@@ -1,19 +1,16 @@
-/*
- * Base structure
- */
-
-/* Move down content because we have a fixed navbar that is 50px tall */
-body {
-  padding-top: 60px;
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
   position: relative;
-  font-family: "Lato", sans-serif;
+  min-height: 100%;
 }
 
-input::-moz-focus-inner { 
-    border: 0; 
-    padding: 0; 
-    margin-top:-2px; 
-    margin-bottom: -2px;
+.body-margin{
+  margin-top: 60px;
+}
+
+.container-menu{
+  margin:0 0 0 0;
 }
 
 .axis path,
@@ -24,12 +21,6 @@ input::-moz-focus-inner {
   shape-rendering: crispEdges;
   fill: none;
 }
-
-h5{
-  text-align: center;
-  font-weight: bold;
-}
-
 .axisLabels{
   font-size:14px;
   fill: #000000;
@@ -65,4 +56,28 @@ h5{
 
 .error{
   color:red;
+}
+
+.right-aligned{
+  position: absolute;
+  right:5px;
+}
+
+.date-input{
+  cursor: pointer;
+  border: 1px solid gray;
+  border-radius: 5px;
+  padding: 2px;
+}
+
+.option_item:before{
+  content:none !important;
+}
+
+.padded-container{
+  padding: 10px;
+}
+
+.options-container{
+  height:65px;
 }

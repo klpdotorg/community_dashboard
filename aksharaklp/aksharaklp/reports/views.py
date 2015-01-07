@@ -9,11 +9,6 @@ import sys
 import traceback
 import time
 
-# Create your views here.
-# responds to the first request, gets location information and renders reports.html
-def experiment(request):
-	return render(request,'reports/reports2.html')
-	
 def main(request):
 	districts=serializers.serialize("json",TbDistrict.objects.all(),fields=('id','district_name'))
 	
@@ -96,7 +91,7 @@ def fetchPerfData(queryDict):
 		where="AND school.id = %(school)s"
 		parameters['school'] = school
 
-	query=("SELECT visit.month ||'-'||visit.year date_,"
+	query=("SELECT to_date('01-'|| visit.month || '-' || visit.year, 'DD-MM-YYYY') date_,"
 	"(sum(perform.parents_teachers)::float/count(perform.parents_teachers)::float) * (select normalized_agreement_percent_t from tb_weight_determination wgt_dtm where id=1) +"
 	"(sum(perform.parents_parents)::float/count(perform.parents_parents)::float) *(select normalized_agreement_percent_p from tb_weight_determination wgt_dtm where id=1) +"
 	"(sum(perform.parents_community)::float/count(perform.parents_community)::float) * (select normalized_agreement_percent_c from tb_weight_determination wgt_dtm where id=1) Parents,"
@@ -129,20 +124,20 @@ def fetchPerfData(queryDict):
 	" cluster.block_id = block.id AND"
 	" block.district_id = district.id AND"
 	" perform.visit_id = visit.id AND"
-	" visit.month BETWEEN %(fromMonth)s AND %(toMonth)s AND"
-	" visit.year BETWEEN %(fromYear)s AND %(toYear)s")
+	" to_date('01 '||visit.month||' '||visit.year, 'DD MM YYYY') BETWEEN to_date('01 '|| %(fromMonth)s||' ' || %(fromYear)s, 'DD MM YYYY')"
+	" AND to_date('01 '|| %(toMonth)s ||' '|| %(toYear)s, 'DD MM YYYY')")
 
-	query = query+" "+where+" "+groupBy+";"
-
+	query = query+" "+where+" "+groupBy+" ORDER BY date_;"
 	rows="date,Parents,SDMC,Community,Teachers"
 	try:
 		cursor = connection.cursor()
 		cursor.execute(query,parameters)
 		for row in cursor:
-			rows=rows+"\n"+row[0]+","+'%.5f' % row[1]+","+'%.5f' % row[2]+","+'%.5f' % row[3]+","+'%.5f' % row[4]
+			rows=rows+"\n"+row[0].strftime("%m-%Y")+","+'%.5f' % row[1]+","+'%.5f' % row[2]+","+'%.5f' % row[3]+","+'%.5f' % row[4]
 		connection.close()
 	except Exception:
 		sys.stderr.write("----------------SQL ERROR-----------------------\n")
+		connection.close()
 		traceback.print_exc()
 
 	return rows
@@ -190,7 +185,7 @@ def fetchReqData(queryDict):
 		parameters['school'] = school
 
 	query=("SELECT *,(t1+t2+t3+t4)/4 AS avg_t,(p1+p2+p3+p4)/4 AS avg_p,(c1+c2+c3+c4)/4 AS avg_c FROM "
-	"(SELECT visit.month ||'-'||visit.year date_,"  
+	"(SELECT to_date('01-'|| visit.month || '-' || visit.year, 'DD-MM-YYYY') date_,"
 	  
 	"(sum(case when require.teacher_tlmsufficient=1 then 1 else 0 end)::float)/(case when count(teacher_tlmsufficient)=0 then 1 else count(teacher_tlmsufficient) end)::float t1,"
 	"(sum(case when require.teacher_work_overload=0 then 1 else 0 end)::float)/(case when count(teacher_work_overload)=0 then 1 else count(teacher_work_overload) end)::float t2,"
@@ -222,10 +217,10 @@ def fetchReqData(queryDict):
 	" cluster.block_id = block.id AND"
 	" block.district_id = district.id AND"
 	" require.visit_id = visit.id AND"
-	" visit.month BETWEEN %(fromMonth)s AND %(toMonth)s AND"
-	" visit.year BETWEEN %(fromYear)s AND %(toYear)s")
+	" to_date('01 '||visit.month||' '||visit.year, 'DD MM YYYY') BETWEEN to_date('01 '|| %(fromMonth)s || ' '|| %(fromYear)s, 'DD MM YYYY')"
+	" AND to_date('01 '|| %(toMonth)s ||' '|| %(toYear)s, 'DD MM YYYY')")
 	
-	query = query+" "+where+" "+groupBy+" ) x;"
+	query = query+" "+where+" "+groupBy+" ORDER BY date_) x;"
 	
 	avgs="date,Teachers,Parents,Community"	
 	splits="date,splitOf,split1,split2,split3,split4"
@@ -234,10 +229,10 @@ def fetchReqData(queryDict):
 		cursor = connection.cursor()
 		cursor.execute(query,parameters)
 		for row in cursor:
-			splits=splits+"\n"+row[0]+","+"Teachers"+","+'%.5f' % row[1]+","+'%.5f' % row[2]+","+'%.5f' % row[3]+","+'%.5f' % row[4]
-			splits=splits+"\n"+row[0]+","+"Parents"+","+'%.5f' % row[5]+","+'%.5f' % row[6]+","+'%.5f' % row[7]+","+'%.5f' % row[8]
-			splits=splits+"\n"+row[0]+","+"Community"+","+'%.5f' % row[9]+","+'%.5f' % row[10]+","+'%.5f' % row[11]+","+'%.5f' % row[12]
-			avgs=avgs+"\n" +row[0]+","+'%.5f' % row[13]+","+'%.5f' % row[14]+","+'%.5f' % row[15]  
+			splits=splits+"\n"+row[0].strftime("%m-%Y")+","+"Teachers"+","+'%.5f' % row[1]+","+'%.5f' % row[2]+","+'%.5f' % row[3]+","+'%.5f' % row[4]
+			splits=splits+"\n"+row[0].strftime("%m-%Y")+","+"Parents"+","+'%.5f' % row[5]+","+'%.5f' % row[6]+","+'%.5f' % row[7]+","+'%.5f' % row[8]
+			splits=splits+"\n"+row[0].strftime("%m-%Y")+","+"Community"+","+'%.5f' % row[9]+","+'%.5f' % row[10]+","+'%.5f' % row[11]+","+'%.5f' % row[12]
+			avgs=avgs+"\n" +row[0].strftime("%m-%Y")+","+'%.5f' % row[13]+","+'%.5f' % row[14]+","+'%.5f' % row[15]  
 	except Exception:
 		sys.stderr.write("\n----------------SQL ERROR-----------------------\n")
 		traceback.print_exc()

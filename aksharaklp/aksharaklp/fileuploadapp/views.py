@@ -8,6 +8,8 @@ from aksharaklp.fileuploadapp.models import Document
 from aksharaklp.fileuploadapp.forms import DocumentForm
 from aksharaklp.fileuploadapp.filereader import read_file
 from aksharaklp.fileuploadapp.dataanalyzer import analyze_data
+from django.contrib.auth.decorators import login_required
+
 def list(request):
     # Handle file upload
     if request.method == 'POST':
