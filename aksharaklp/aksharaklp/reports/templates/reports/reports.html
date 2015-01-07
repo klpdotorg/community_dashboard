@@ -586,7 +586,10 @@
                 cluster: cluster,
                 school: school
             };
-
+            if((toDate - fromDate) <= 0){
+              alert('Please select a valid date range');
+              return;
+            }
             var rData;
 
             $.get('../generate', data, function (data) {
