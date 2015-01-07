@@ -13,9 +13,7 @@
     <link href="../../static/lib/tipsy.css" rel="stylesheet">
     <link href="../../static/lib/bootstrap.min.css" rel="stylesheet"/>
     <link href="../../static/lib/datepicker.css" rel="stylesheet"/>
-    <link href="../../static/lib/Style.css" rel="stylesheet"/>
-<!--     <link rel="stylesheet" href="https://klp.org.in/static/css/style.css" type="text/css" media="all"/>
- -->    
+    <link rel="stylesheet" href="https://klp.org.in/static/css/style.css" type="text/css" media="all"/>
     <link href="../../static/css/dashboard.css" rel="stylesheet"/>
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -27,12 +25,12 @@
 <body>
    <header class="main-header  ">
        <div class="header-content">
-           <a href="/" class="header_mobile_logo"></a>
+           <a href="https://klp.org.in" class="header_mobile_logo"></a>
            <a class="mobile_icon" onclick="toggle_mobile_nav();"></a>
            <nav class="top-nav" role="navigation">
                <ul id="navigation">
                    <li class="home">
-                       <a href="/">
+                       <a href="https://klp.org.in">
                            <h1>Karnataka Learning Partnership</h1>
                        </a>
                    </li>
@@ -58,7 +56,7 @@
                    </li>
 
                    <li class="database">
-                       <a href="/listFiles/2" title="">Data</a>
+                       <a href="https://klp.org.in/listFiles/2" title="">Data</a>
                        <ul>
                            <li><a href="http://status.klp.org.in" target="_blank" title=""><span></span>Status</a>
                            </li>
@@ -510,6 +508,7 @@
             $('#' + dropdownId).empty();
 
             var filteredData, selDistIndex;
+
             if (filterKey != null) {
                 filteredData = $.grep(rawData, function (el, index) {
                     var value = (el.fields[filterKey] != null) ? el.fields[filterKey] : el[filterKey];
@@ -524,6 +523,7 @@
             var selAnchor;
 
             $.each(filteredData, function (index, value) {
+              if(value.toString().trim()!=""){
                 var selText = toProperCase(value.fields[dataField]);
                 var anchor = $('<a>')
                     .attr('href', 'javascript:void(0)')
@@ -543,6 +543,7 @@
                     .append($('<li>')
                         .append($(anchor)));
                 selAnchor = (selDistIndex == index) ? anchor : selAnchor;
+              }
             });
 
             $(selAnchor)
@@ -719,10 +720,9 @@
                 });
             });
 
-            var totalMonths = (fromDate.getFullYear() - toDate.getFullYear()) * 12 + (toDate.getMonth() - fromDate.getMonth());
-            var months = (totalMonths == 0) ? d3.time.months(fromDate, toDate) : d3.time.months(fromDate, d3.time.month.offset(toDate, 1));
-
+            var months = getDateRange();
             dateScale.domain(months);
+
             splitScale.domain(splits).rangeRoundBands([0, dateScale.rangeBand()]);
 
             yScale.domain([d3.min(dataset, function (d) {
@@ -949,11 +949,19 @@
             var width = +$("#" + svgId).width();
             var widthDiff = width - margin.right - margin.left - 100;
             var heightDiff = height - margin.bottom;
-            var xScale = d3.scale.ordinal().range([0, widthDiff]);
-            //xScale.ticks(d3.time.month, 1);
+
+            var xScale = d3.time.scale().range([0, widthDiff]);
+
             var yScale = d3.scale.linear().range([height - margin.top - margin.bottom, 0]);
+
             //create axis
-            var xAxis = d3.svg.axis().scale(xScale).orient("bottom").tickFormat(d3.time.format("%b %y"));
+            var xAxis = d3.svg.axis()
+                              .scale(xScale)
+                              .orient("bottom")
+                              .ticks(d3.time.months)
+                              .tickSize(16, 0)
+                              .tickFormat(d3.time.format("%b %y"));
+            
             var yAxis = d3.svg.axis().scale(yScale).orient("left");
 
             //draw averages
@@ -983,12 +991,12 @@
                 };
             });
 
-            var totalMonths = (toDate.getFullYear() - fromDate.getFullYear() ) * 12 + Math.abs(toDate.getMonth() - fromDate.getMonth());
-            var start=d3.time.month.floor(fromDate);
-            var end =d3.time.month.ceil(toDate);
-            var months = (totalMonths == 0) ? d3.time.months(start, end) : d3.time.months(start,end);
+            var start = d3.time.month.floor(fromDate);
+            
+            var end = toDate;
 
-            xScale.domain(months);
+            xScale.domain(d3.extent([start,end]));
+            
             yScale.domain([d3.min(transformedDataset, function (c) {
                     return d3.min(c.values, function (v) {
                         return v.value;
@@ -1162,6 +1170,14 @@
         }
 
         /*Utility Functions*/
+        function getDateRange(){
+          fromDate = d3.time.month.floor(fromDate);
+          var months = d3.time.months(fromDate, toDate);
+          var lastMonth = months[months.length-1];
+          if(lastMonth!=null && (lastMonth.getMonth() !== toDate.getMonth()))
+            months.push(toDate);
+          return months;
+        }
 
         function toProperCase(s) {
             s = $.trim(s);
