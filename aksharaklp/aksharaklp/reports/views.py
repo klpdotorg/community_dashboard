@@ -10,42 +10,49 @@ import traceback
 import time
 
 def main(request):
-	districts=serializers.serialize("json",TbDistrict.objects.all(),fields=('id','district_name'))
-	
-	blocks=serializers.serialize("json",TbBlock.objects.all(),fields=('id','block_name','district'))
-	
-	clusters=serializers.serialize("json",TbCluster.objects.all(),fields=('id','cluster_name','block'))
-	
-	schools=serializers.serialize("json",TbSchool.objects.all(),fields=('id','school_name','cluster','klp_id'))
-	
-	locationData={'districts':districts,'blocks':blocks,'clusters':clusters,'schools':schools}
-	
-	date_=getMaxMinDates()
-	fromDate=date_[0]
-	toDate=date_[1]
+	hasError = False
+	try:
+		districts=serializers.serialize("json",TbDistrict.objects.all(),fields=('id','district_name'))
+		
+		blocks=serializers.serialize("json",TbBlock.objects.all(),fields=('id','block_name','district'))
+		
+		clusters=serializers.serialize("json",TbCluster.objects.all(),fields=('id','cluster_name','block'))
+		
+		schools=serializers.serialize("json",TbSchool.objects.all(),fields=('id','school_name','cluster','klp_id'))
+		
+		locationData={'districts':districts,'blocks':blocks,'clusters':clusters,'schools':schools}
+		
+		date_=getMaxMinDates()
+		fromDate=date_[0]
+		toDate=date_[1]
+	except Exception:
+		sys.stderr.write("----------------SQL ERROR-----------------------\n")
+		traceback.print_exc()
+		hasError=True
 
-	return render(request, 'reports/reports.html', {'locationData':locationData,'toDate':toDate,'fromDate':fromDate})
+	if hasError == True:
+		return render(request,'reports/reports.html',{hasError:True})
+	else:
+		return render(request, 'reports/reports.html', {'locationData':locationData,'toDate':toDate,'fromDate':fromDate})
 
 def getMaxMinDates():
 	query=("SELECT min(to_date(nullif(year||'-'||month||'-'||day,''), 'YYYY-MM-DD'))," 
 		"max(to_date(nullif(year||'-'||month||'-'||day,''), 'YYYY-MM-DD')) FROM tb_visit_details;")
-	try:
-		cursor = connection.cursor()
-		cursor.execute(query)
-		data=cursor.fetchone()
-	except Exception:
-		sys.stderr.write("----------------SQL ERROR-----------------------\n")
-		traceback.print_exc()
-
+	cursor = connection.cursor()
+	cursor.execute(query)
+	data=cursor.fetchone()
 	return data
 
 def generateReport(request):
 	response = HttpResponse()
 	data=dict()
-	data["perfData"]=fetchPerfData(request.GET)
-	rows=fetchReqData(request.GET)
-	data["reqData"]=rows['avgs']
-	data["reqAvgsSplit"]=rows['splits']
+	try:
+		data["perfData"]=fetchPerfData(request.GET)
+		rows=fetchReqData(request.GET)
+		data["reqData"]=rows['avgs']
+		data["reqAvgsSplit"]=rows['splits']
+	except Exception:
+		data["hasError"] = True
 	response.write(json.dumps(data))
 	return response
 
@@ -129,16 +136,12 @@ def fetchPerfData(queryDict):
 
 	query = query+" "+where+" "+groupBy+" ORDER BY date_;"
 	rows="date,Parents,SDMC,Community,Teachers"
-	try:
-		cursor = connection.cursor()
-		cursor.execute(query,parameters)
-		for row in cursor:
-			rows=rows+"\n"+row[0].strftime("%m-%Y")+","+'%.5f' % row[1]+","+'%.5f' % row[2]+","+'%.5f' % row[3]+","+'%.5f' % row[4]
-		connection.close()
-	except Exception:
-		sys.stderr.write("----------------SQL ERROR-----------------------\n")
-		connection.close()
-		traceback.print_exc()
+	
+	cursor = connection.cursor()
+	cursor.execute(query,parameters)
+	for row in cursor:
+		rows=rows+"\n"+row[0].strftime("%m-%Y")+","+'%.5f' % row[1]+","+'%.5f' % row[2]+","+'%.5f' % row[3]+","+'%.5f' % row[4]
+	connection.close()
 
 	return rows
 
@@ -225,17 +228,14 @@ def fetchReqData(queryDict):
 	avgs="date,Teachers,Parents,Community"	
 	splits="date,splitOf,split1,split2,split3,split4"
 
-	try:
-		cursor = connection.cursor()
-		cursor.execute(query,parameters)
-		for row in cursor:
-			splits=splits+"\n"+row[0].strftime("%m-%Y")+","+"Teachers"+","+'%.5f' % row[1]+","+'%.5f' % row[2]+","+'%.5f' % row[3]+","+'%.5f' % row[4]
-			splits=splits+"\n"+row[0].strftime("%m-%Y")+","+"Parents"+","+'%.5f' % row[5]+","+'%.5f' % row[6]+","+'%.5f' % row[7]+","+'%.5f' % row[8]
-			splits=splits+"\n"+row[0].strftime("%m-%Y")+","+"Community"+","+'%.5f' % row[9]+","+'%.5f' % row[10]+","+'%.5f' % row[11]+","+'%.5f' % row[12]
-			avgs=avgs+"\n" +row[0].strftime("%m-%Y")+","+'%.5f' % row[13]+","+'%.5f' % row[14]+","+'%.5f' % row[15]  
-	except Exception:
-		sys.stderr.write("\n----------------SQL ERROR-----------------------\n")
-		traceback.print_exc()
+	cursor = connection.cursor()
+	cursor.execute(query,parameters)
+
+	for row in cursor:
+		splits=splits+"\n"+row[0].strftime("%m-%Y")+","+"Teachers"+","+'%.5f' % row[1]+","+'%.5f' % row[2]+","+'%.5f' % row[3]+","+'%.5f' % row[4]
+		splits=splits+"\n"+row[0].strftime("%m-%Y")+","+"Parents"+","+'%.5f' % row[5]+","+'%.5f' % row[6]+","+'%.5f' % row[7]+","+'%.5f' % row[8]
+		splits=splits+"\n"+row[0].strftime("%m-%Y")+","+"Community"+","+'%.5f' % row[9]+","+'%.5f' % row[10]+","+'%.5f' % row[11]+","+'%.5f' % row[12]
+		avgs=avgs+"\n" +row[0].strftime("%m-%Y")+","+'%.5f' % row[13]+","+'%.5f' % row[14]+","+'%.5f' % row[15]  
 
 	rows=dict()
 	rows['avgs']=avgs
