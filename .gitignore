@@ -1,3 +1,5 @@
 *.pyc
 *.pyc
 *.csv
+secret.txt
+local_settings.py
