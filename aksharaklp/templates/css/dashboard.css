@@ -12,6 +12,7 @@ html {
 .container-menu{
   margin:0 0 0 0;
 }
+/*--*/
 
 .axis path,
 .axis line {
@@ -72,10 +73,6 @@ html {
 
 .option_item:before{
   content:none !important;
-}
-
-.padded-container{
-  padding: 10px;
 }
 
 .options-container{

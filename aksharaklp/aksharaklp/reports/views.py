@@ -19,12 +19,13 @@ def main(request):
 		clusters=serializers.serialize("json",TbCluster.objects.all(),fields=('id','cluster_name','block'))
 		
 		schools=serializers.serialize("json",TbSchool.objects.all(),fields=('id','school_name','cluster','klp_id'))
-		
-		locationData={'districts':districts,'blocks':blocks,'clusters':clusters,'schools':schools}
-		
+
+		locationData=json.dumps({'districts':districts,'blocks':blocks,'clusters':clusters,'schools':schools})
+
 		date_=getMaxMinDates()
 		fromDate=date_[0]
 		toDate=date_[1]
+		
 	except Exception:
 		sys.stderr.write("----------------SQL ERROR-----------------------\n")
 		traceback.print_exc()
